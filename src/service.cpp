@@ -1,26 +1,24 @@
-#include <cstring>
 #include <vector>
+#include <map>
+#include <string>
+#include "service.h"
 
 using namespace std;
 
 //this function realises Step 1 of algorithm
-vector<string> getCommonSubVec(const vector<char>&arr){
-	vector<int> result;
+map<string, vector<int>> getCommonSubVec(const string &arr){
+	map<string, vector<int>> result;
 	for(int i = 0; i < arr.size()-4; ++i){
-		for(int j = i+2; j < arr.size() -2; ++j)
-			if (&arr[i] == &arr[j] && &arr[i+1] + &arr[j+1]){//
-				result.append(i);
-				break;
+		for(int j = i+1; j < arr.size()-2; ++j){
+			string tmp(arr.begin()+i, arr.begin()+i+3);
+			if ( result.count(tmp) != 0)//check if result contains alredy this substring
+				continue;
+			if (arr[i] == arr[j] && (arr[i+1] == arr[j+1]) && (arr[i+2] == arr[j+2]) ){
+				if( result.count(tmp) == 0)//we need to add substring to result if it was found in first time
+					result[ tmp ].push_back(i);
+				result[ tmp ].push_back(j);
 			}
-	}
-	while(1 == 1){//suppose that it's impossible to get infinity loop because the vector "arr" is finite
-		int size_before = result[0].size();
-		for(int i = 0; i < result.size(); ++i){
-			if (result.size
 		}
-		if (size_before == result[0].size())
-			break;
 	}
-	
 	return result;
 }
