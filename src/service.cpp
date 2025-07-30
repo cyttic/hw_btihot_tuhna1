@@ -5,6 +5,7 @@
 #include <iostream>
 #include <cctype>
 #include <set>
+#include <iterator>
 #include "service.h"
 
 using namespace std;
@@ -14,9 +15,13 @@ string ABC = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 //this function realises Step 1 of algorithm
 map<string, vector<int>> getCommonSubVec(const string &arr){
 	map<string, vector<int>> result;
+	//string arr = source;//set source string to uppercase
+	//transform(arr.begin(), arr.end(), arr.begin(), [](unsigned char c) { return std::toupper(c); });
 	for(int i = 0; i < arr.size()-4; ++i){
 		string tmp(arr.begin()+i, arr.begin()+i+3);
-		if ( result.count(tmp) != 0)//check if result contains alredy this substring
+		if ( result.count(tmp) != 0 ||//check if result contains alredy this substring
+				std::find_if(tmp.begin(), tmp.end(),//and also all of symbols of substring is letters
+                   [](char c) { return !std::isalpha(c); }) != tmp.end())
 				continue;
 		for(int j = i+1; j < arr.size()-2; ++j){
 			if (arr[i] == arr[j] && (arr[i+1] == arr[j+1]) && (arr[i+2] == arr[j+2]) ){
@@ -27,6 +32,15 @@ map<string, vector<int>> getCommonSubVec(const string &arr){
 		}
 	}
 	return result;
+}
+
+vector<int> mostLongVec(const map<string, vector<int>>&m){
+	vector<int>result;
+	for (const auto& pair : m) {
+        if(pair.second.size() > result.size())
+			result = pair.second;
+    }
+    return result;
 }
 
 //step 2
@@ -93,11 +107,19 @@ string decVigenere(const string &text, const string &key){
 
 set<int> getDivisors(int val){
 	set<int>result;
-	for(int i = 1; i <= val; ++i)
+	for(int i = 2; i <= val; ++i)
 		if (val % i == 0)
-			result.add(i);
+			result.insert(i);
+	return result;
 }
 
-vector<int> getDivVec(const vector<int> &vec){
-	
+set<int> getDivFromVec(const vector<int> &vec){
+	set<int>result;
+	set<int>first = getDivisors(vec[0]);
+	for(int i = 1; i < vec.size(); ++i){
+		auto divisors = getDivisors(vec[i]);
+		std::set_intersection(divisors.begin(), divisors.end(), first.begin(), first.end(), std::inserter(result, result.begin()));
+		first = result;
+	}
+	return result;
 }
