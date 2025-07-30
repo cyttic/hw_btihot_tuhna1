@@ -22,3 +22,11 @@ map<string, vector<int>> getCommonSubVec(const string &arr){
 	}
 	return result;
 }
+
+//step 2
+vector<int> getDistances(const vector<int> &vec){
+	vector<int>result;
+	for(int i = 1; i < vec.size(); ++i)
+		result.push_back(vec[i] - vec[i-1]);
+	return result;
+}
