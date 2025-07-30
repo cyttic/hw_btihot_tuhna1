@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <iostream>
 #include <cctype>
+#include <set>
 #include "service.h"
 
 using namespace std;
@@ -88,4 +89,15 @@ string decVigenere(const string &text, const string &key){
 			result += t[i];
 	}
 	return result;
+}
+
+set<int> getDivisors(int val){
+	set<int>result;
+	for(int i = 1; i <= val; ++i)
+		if (val % i == 0)
+			result.add(i);
+}
+
+vector<int> getDivVec(const vector<int> &vec){
+	
 }
