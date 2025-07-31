@@ -10,6 +10,7 @@ std::string decVigenere(const std::string &, const std::string &);
 std::set<int> getDivisors(int val);
 std::set<int> getDivFromVec(const std::vector<int> &);
 std::vector<int> getDistances(const std::vector<int> &vec);
+std::vector<double> testKasiski(const std::string &str, int n);
 
 std::vector<int> mostLongVec(const std::map<std::string, std::vector<int>>&m);
 

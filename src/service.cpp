@@ -123,3 +123,36 @@ set<int> getDivFromVec(const vector<int> &vec){
 	}
 	return result;
 }
+
+
+vector<double> testKasiski(const string &str, int n){
+	//we need to divide a text on n pieces and find IC.
+	int len = str.size() %n == 0? str.size()/n : 1 + str.size()/n;
+	//cout << "LEN: " << len << endl;
+	//int len = str.size()/n ;
+	vector<double>result;
+	for(int i = 0; i < n; ++i){
+		int j =i;
+		string str_current;
+		while(str_current.size() != len && j < str.size()){
+			str_current += str[j];
+			j += n;
+		}
+		//cout << "current word: " << str_current.size() << " " << str_current << endl;
+		//count the letter frequencies
+			int letters[26] = {0};
+			for(int j = 0 ; j < str_current.size(); ++j)
+				letters[str_current[j]-65]++;	
+			//calculate the cumerator
+			double sum = 0;
+			for(int j = 0; j < 26;++j)
+				sum += letters[j]*(letters[j]-1);
+			//calculate the denominator: N(N-1)
+			int den = str_current.size()*(str_current.size()-1);
+			result.push_back(sum/den);
+		
+	}
+	return result;
+}
+
+
