@@ -6,6 +6,7 @@
 #include <cctype>
 #include <set>
 #include <iterator>
+#include <limits>
 #include "service.h"
 
 using namespace std;
@@ -154,18 +155,27 @@ vector<double> testKasiski(const string &str, int n){
 	return result;
 }
 
+/*
 char getFrequencyLetter(const string &str){
-	vector<char>ch(26);
-	for(int i = 0; i < ch.size(); ++i)
+	int ch[26] = {0};
+	for(int i = 0; i < str.size(); ++i)
 		ch[str[i]-65]++;
 	int Max = 0;
-	for(int i = 0; i < ch.size(); ++i)
+	for(int i = 0; i < 26; ++i)
 		if (ch[i] > ch[Max])
 			Max = i;
-	return char( Max + 65 );
+	return char( Max );
 }
 
-string getKey(const string &str, int len){
+
+vector<char> getFrequencyLetterVec(const string &str){
+	vector<char>vec(26);
+	for(int i = 0; i < str.size(); ++i)
+		vec[str[i]-65]++;
+	return vec;
+}
+
+string getKey(const string &str, int n){
 	int len = str.size() %n == 0? str.size()/n : 1 + str.size()/n;
 	string result;
 	for(int i = 0; i < n; ++i){
@@ -175,9 +185,84 @@ string getKey(const string &str, int len){
 			str_current += str[j];
 			j += n;
 		}
-		result += getFrequencyLetter(str_current);
+		//cout << "string is: " << str_current << endl;
+		auto v = getFrequencyLetterVec(str_current);
+		//for(int i = 0; i < 26; ++i)
+		//	cout << char(i+65) << ":" << (int)v[i] << " ";
+		//cout << endl;
+
+		char shift_i = ( (65+getFrequencyLetter(str_current))-'E' + 26)%26;
+		char letter = char( shift_i + 'A' );
+		result += letter;
 	}
 	return result;
 }
+*/
 
+// Standard English letter frequencies (A–Z)
+static constexpr double EN_FREQ[26] = {
+  0.082, 0.015, 0.028, 0.043, 0.127, 0.022, 0.020,
+  0.061, 0.070, 0.002, 0.008, 0.040, 0.024, 0.067,
+  0.075, 0.019, 0.001, 0.060, 0.063, 0.091, 0.028,
+  0.010, 0.023, 0.001, 0.020, 0.001
+};
 
+// Compute χ² between observed counts and expected English distribution
+double chiSquared(const vector<int>& obs, int N) {
+    double chi2 = 0.0;
+    for (int i = 0; i < 26; ++i) {
+        double expected = EN_FREQ[i] * N;
+        double diff = obs[i] - expected;
+        chi2 += diff * diff / (expected > 0 ? expected : 1.0);
+    }
+    return chi2;
+}
+
+string getKey(const string &ciphertext, int n) {
+    // 1) Split into n streams, only increment on letters
+    vector<string> streams(n);
+    int letterCount = 0;
+    for (char c : ciphertext) {
+        if (isalpha(static_cast<unsigned char>(c))) {
+            streams[ letterCount++ % n ] += toupper(c);
+        }
+    }
+
+    string key;
+    key.reserve(n);
+
+    // 2) For each stream, find the shift with the lowest chi-squared
+    for (int i = 0; i < n; ++i) {
+        const string &stream = streams[i];
+        int L = stream.size();
+        if (L == 0) {
+            key += 'A';  // fallback
+            continue;
+        }
+
+        double bestChi2 = numeric_limits<double>::infinity();
+        int bestShift = 0;
+
+        // Try all 26 possible shifts
+        for (int s = 0; s < 26; ++s) {
+            // Build observed frequencies for this candidate un-shift
+            vector<int> obs(26, 0);
+            for (char c : stream) {
+                // reverse shift: map C -> P = (C - 'A' - s + 26) % 26
+                int p = ( (c - 'A') - s + 26 ) % 26;
+                obs[p]++;
+            }
+            double chi2 = chiSquared(obs, L);
+            if (chi2 < bestChi2) {
+                bestChi2 = chi2;
+                bestShift = s;
+            }
+        }
+
+        // 3) Convert the winning shift back into a key-letter
+        //    (a shift of s means key letter = 'A' + s)
+        key += char('A' + bestShift);
+    }
+
+    return key;
+}
