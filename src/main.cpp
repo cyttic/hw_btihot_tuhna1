@@ -27,10 +27,6 @@ int main(){
 		//for(auto j : res)
 		//	cout << j << endl;
 		//cout<< "---------" << endl;
-		double sum = std::accumulate(res.begin(), res.end(), 0.0); 
-		// Calculate the average
-		double average = sum / res.size();
-		std::cout << "Average: " << average << std::endl;
 	}
 	
 		

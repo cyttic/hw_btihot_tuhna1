@@ -12,6 +12,8 @@ std::set<int> getDivFromVec(const std::vector<int> &);
 std::vector<int> getDistances(const std::vector<int> &vec);
 std::vector<double> testKasiski(const std::string &str, int n);
 
+std::string getKey(const std::string &str, int len);
+
 std::vector<int> mostLongVec(const std::map<std::string, std::vector<int>>&m);
 
 std::map<std::string, std::vector<int>> getCommonSubVec(const std::string &arr);

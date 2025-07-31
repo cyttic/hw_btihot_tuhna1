@@ -150,7 +150,32 @@ vector<double> testKasiski(const string &str, int n){
 			//calculate the denominator: N(N-1)
 			int den = str_current.size()*(str_current.size()-1);
 			result.push_back(sum/den);
-		
+	}
+	return result;
+}
+
+char getFrequencyLetter(const string &str){
+	vector<char>ch(26);
+	for(int i = 0; i < ch.size(); ++i)
+		ch[str[i]-65]++;
+	int Max = 0;
+	for(int i = 0; i < ch.size(); ++i)
+		if (ch[i] > ch[Max])
+			Max = i;
+	return char( Max + 65 );
+}
+
+string getKey(const string &str, int len){
+	int len = str.size() %n == 0? str.size()/n : 1 + str.size()/n;
+	string result;
+	for(int i = 0; i < n; ++i){
+		int j =i;
+		string str_current;
+		while(str_current.size() != len && j < str.size()){
+			str_current += str[j];
+			j += n;
+		}
+		result += getFrequencyLetter(str_current);
 	}
 	return result;
 }
