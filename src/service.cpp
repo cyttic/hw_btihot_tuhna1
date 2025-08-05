@@ -1,5 +1,6 @@
 #include <vector>
 #include <map>
+#include <cmath>
 #include <string>
 #include <algorithm>
 #include <iostream>
@@ -199,69 +200,119 @@ string getKey(const string &str, int n){
 }
 */
 
-// Standard English letter frequencies (A–Z)
-static constexpr double EN_FREQ[26] = {
-  0.082, 0.015, 0.028, 0.043, 0.127, 0.022, 0.020,
-  0.061, 0.070, 0.002, 0.008, 0.040, 0.024, 0.067,
-  0.075, 0.019, 0.001, 0.060, 0.063, 0.091, 0.028,
-  0.010, 0.023, 0.001, 0.020, 0.001
-};
-
-// Compute χ² between observed counts and expected English distribution
-double chiSquared(const vector<int>& obs, int N) {
-    double chi2 = 0.0;
-    for (int i = 0; i < 26; ++i) {
-        double expected = EN_FREQ[i] * N;
-        double diff = obs[i] - expected;
-        chi2 += diff * diff / (expected > 0 ? expected : 1.0);
-    }
-    return chi2;
+vector<double> getAbcFreq(const string &str){
+	vector<double>result(26);
+	for(int i = 0; i < str.size(); ++i)
+		result[str[i]-65]++;
+	/*
+	for(int i = 0; i < str.size(); ++i)
+		try{
+			result.at(str[i]-65);
+		}catch(const std::runtime_error& e){
+			cout << "PROBLEM AT " << i << " " << str[i] << endl;
+		}
+		*/
+	for(int i = 0; i < result.size(); ++i)
+		result[i] = result[i]/str.size();
+		
+	return result;
 }
 
-string getKey(const string &ciphertext, int n) {
-    // 1) Split into n streams, only increment on letters
-    vector<string> streams(n);
-    int letterCount = 0;
+
+const std::string ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+/*
+// English letter frequencies (A-Z)
+const std::vector<double> ENGLISH_FREQS = {
+    0.08167, 0.01492, 0.02782, 0.04253, 0.12702, 0.02228, 0.02015,
+    0.06094, 0.06966, 0.00153, 0.00772, 0.04025, 0.02406, 0.06749,
+    0.07507, 0.01929, 0.00095, 0.05987, 0.06327, 0.09056, 0.02758,
+    0.00978, 0.02360, 0.00150, 0.01974, 0.00074
+};
+*/
+
+const std::vector<double> ENGLISH_FREQS = {
+	0.0626407, 0.037871, 0.0386899, 0.0331627, 0.0839304, 0.0229273,0.0282497,
+	0.0431934,0.0462641,0.0227226, 0.0200614, 0.0292733,0.0315251,0.0745138,
+	0.0665302,0.0204708, 0.0202661, 0.0700102,0.0407369, 0.057523, 0.0298874,
+	0.0274309, 0.024565, 0.0206755,0.0284545,0.0184237
+};
+
+
+double cosangle(const std::vector<double>& vec1, const std::vector<double>& vec2) {
+    double dot_product = 0.0, norm1 = 0.0, norm2 = 0.0;
+    for (size_t i = 0; i < vec1.size(); ++i) {
+        dot_product += vec1[i] * vec2[i];
+        norm1 += vec1[i] * vec1[i];
+        norm2 += vec2[i] * vec2[i];
+    }
+    norm1 = std::sqrt(norm1);
+    norm2 = std::sqrt(norm2);
+    if (norm1 == 0.0 || norm2 == 0.0) return 0.0;
+    return dot_product / (norm1 * norm2);
+}
+
+std::string getKey(const std::string& ciphertext, int n) {
+    // Clean ciphertext: keep only uppercase letters
+    std::string cleaned_ciphertext;
     for (char c : ciphertext) {
-        if (isalpha(static_cast<unsigned char>(c))) {
-            streams[ letterCount++ % n ] += toupper(c);
+        if (std::isupper(c)) {
+            cleaned_ciphertext += c;
         }
     }
 
-    string key;
-    key.reserve(n);
+    // Split into n slices
+    std::vector<std::string> slices(n, "");
+    for (size_t i = 0; i < cleaned_ciphertext.size(); ++i) {
+        slices[i % n] += cleaned_ciphertext[i];
+    }
 
-    // 2) For each stream, find the shift with the lowest chi-squared
+    // Compute frequencies for each slice
+    std::vector<std::vector<double>> frequencies(n, std::vector<double>(26, 0.0));
+    std::string key(n, 'A');
+
     for (int i = 0; i < n; ++i) {
-        const string &stream = streams[i];
-        int L = stream.size();
-        if (L == 0) {
-            key += 'A';  // fallback
-            continue;
+        // Calculate frequency counts
+        for (char c : slices[i]) {
+            frequencies[i][ALPHABET.find(c)] += 1.0;
         }
 
-        double bestChi2 = numeric_limits<double>::infinity();
-        int bestShift = 0;
-
-        // Try all 26 possible shifts
-        for (int s = 0; s < 26; ++s) {
-            // Build observed frequencies for this candidate un-shift
-            vector<int> obs(26, 0);
-            for (char c : stream) {
-                // reverse shift: map C -> P = (C - 'A' - s + 26) % 26
-                int p = ( (c - 'A') - s + 26 ) % 26;
-                obs[p]++;
-            }
-            double chi2 = chiSquared(obs, L);
-            if (chi2 < bestChi2) {
-                bestChi2 = chi2;
-                bestShift = s;
+        // Normalize frequencies
+        double group_len = slices[i].size();
+        if (group_len > 0) {
+            for (int j = 0; j < 26; ++j) {
+                frequencies[i][j] /= group_len;
             }
         }
 
-        // 3) Convert the winning shift back into a key-letter
-        //    (a shift of s means key letter = 'A' + s)
-        key += char('A' + bestShift);
+        // Debug: Print frequencies for each group
+        std::cout << "Group " << (i + 1) << " (length " << group_len << "): " << slices[i] << "\n";
+        std::cout << "  Letter frequencies:\n";
+        for (int j = 0; j < 26; ++j) {
+            if (frequencies[i][j] > 0) {
+                std::cout << "    " << ALPHABET[j] << ": " << frequencies[i][j] << "\n";
+            }
+        }
+
+        // Find best shift using cosine similarity
+        double best_score = -1.0;
+        int best_shift = 0;
+        if (group_len > 0) {
+            for (int j = 0; j < 26; ++j) {
+                std::vector<double> testtable;
+                testtable.insert(testtable.end(), frequencies[i].begin() + j, frequencies[i].end());
+                testtable.insert(testtable.end(), frequencies[i].begin(), frequencies[i].begin() + j);
+                double score = cosangle(ENGLISH_FREQS, testtable);
+                if (score > best_score) {
+                    best_score = score;
+                    best_shift = j;
+                }
+            }
+            key[i] = ALPHABET[best_shift];
+            std::cout << "  Best shift: " << best_shift << ", Cosine similarity: " << best_score << ", Key letter: " << key[i] << "\n";
+        } else {
+            std::cout << "  Empty group, defaulting to key letter 'A'\n";
+        }
     }
 
     return key;
