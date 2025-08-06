@@ -8,6 +8,7 @@
 #include <set>
 #include <iterator>
 #include <limits>
+#include <numeric>
 #include <unordered_map>
 #include "service.h"
 
@@ -15,6 +16,36 @@ using namespace std;
 
 string ABC = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
+
+//this function realises Step 1 of algorithm
+vector<pair<string, vector<int>>> getCommonSubVec(const string &arr){
+        map<string, vector<int>> result;
+        //string arr = source;//set source string to uppercase
+        //transform(arr.begin(), arr.end(), arr.begin(), [](unsigned char c) { return std::toupper(c); });
+        for(int i = 0; i < arr.size()-4; ++i){
+                string tmp(arr.begin()+i, arr.begin()+i+3);
+                if ( result.count(tmp) != 0 ||//check if result contains alredy this substring
+                                std::find_if(tmp.begin(), tmp.end(),//and also all of symbols of substring is letters
+                   [](char c) { return !std::isalpha(c); }) != tmp.end())
+                                continue;
+                for(int j = i+1; j < arr.size()-2; ++j){
+                        if (arr[i] == arr[j] && (arr[i+1] == arr[j+1]) && (arr[i+2] == arr[j+2]) ){
+                                if( result.count(tmp) == 0)//we need to add substring to result if it was found in first time
+                                        result[ tmp ].push_back(i+1);
+                                result[ tmp ].push_back(j+1);
+                        }
+                }
+        }
+		vector<pair<string, vector<int>>> vec;
+		for(auto &i : result)
+			vec.push_back(make_pair(i.first,i.second));
+		sort(vec.begin(), vec.end(), [](const auto& a, const auto& b) {
+			return a.second.size() > b.second.size(); // descending
+		});
+		return vec;
+}
+
+/*
 //this function realises Step 1 of algorithm
 vector<pair<string, vector<int>>> getCommonSubVec(const string& text, int minLen, int maxLen) {
     unordered_map<string, vector<int>> result;
@@ -43,6 +74,7 @@ vector<pair<string, vector<int>>> getCommonSubVec(const string& text, int minLen
     });
     return vec;
 }
+*/
 
 vector<int> mostLongVec(const map<string, vector<int>>&m){
 	vector<int>result;
@@ -58,10 +90,28 @@ set<int> trustedDistances(const vector<pair<string, vector<int>>> &vec){
 	set<int>result;
 	for(auto &item : vec){
 		auto vv = getDivFromVec( getDistances(item.second) );
-		if (vv.size() > result.size())
+		if (vv.size() > 1)
 			result = vv;
 	}
 	return result;
+}
+
+int getKeyLength(const string &vec,const set<int>&s){
+	vector<int>vec_len;
+	pair<double, int>lenBlock;
+	for(auto i : s){		
+		cout<< "---------Checking a length of key = " << i << "---------" << endl;
+		vec_len.push_back(i);
+		auto res = testKasiski(vec,i);
+		for(int j =0; j < res.size(); ++j)
+			cout << "block " << j+1 << ": " << res[j] << endl;
+		double average = accumulate(res.begin(),res.end(), 0.0)/res.size();
+		if (abs(lenBlock.first-0.066) > abs(average - 0.066))
+			lenBlock = make_pair(average, i);
+		cout << "Average IC for key length of "<< i << " is " << average << endl;
+	}
+	cout <<"******** The most probably length of key is " << lenBlock.second << " with IC=" <<lenBlock.first << " ********" <<endl;
+	return lenBlock.second;
 }
 
 //step 2

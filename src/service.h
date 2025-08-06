@@ -17,10 +17,11 @@ std::string getKey(const std::string &str, int len);
 char getFrequencyLetter(const std::string &str);
 std::vector<char> getFrequencyLetterVec(const std::string &str);
 std::vector<double> getAbcFreq(const std::string &str);
+int getKeyLength(const std::string &vec,const std::set<int>&s);
 
 std::vector<int> mostLongVec(const std::unordered_map<std::string, std::vector<int>>&m);
 
 //std::map<std::string, std::vector<int>> getCommonSubVec(const std::string &arr);
-std::vector<std::pair<std::string, std::vector<int>>> getCommonSubVec(const std::string& text, int minLen = 3, int maxLen = 20);
+std::vector<std::pair<std::string, std::vector<int>>> getCommonSubVec(const std::string &arr);
 std::set<int> trustedDistances(const std::vector<std::pair<std::string, std::vector<int>>> &vec);
 
