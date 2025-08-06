@@ -1,5 +1,3 @@
-
-#include <iostream>
 /*
  * Program to demonstrate a calculating the frequency of 
  * appearance of each letter in any ciphertext
@@ -12,6 +10,7 @@
  * 
 */
 
+#include <iostream>
 #include <algorithm>
 #include <iomanip>
 #include "service.h"

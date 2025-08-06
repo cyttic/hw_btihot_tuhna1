@@ -14,7 +14,14 @@
 
 using namespace std;
 
-string ABC = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+string ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+const std::vector<double> ENGLISH_FREQS = {
+	0.06264, 0.03787, 0.03868, 0.03316, 0.08393, 0.02292, 0.02824,
+	0.04319, 0.04626, 0.02272, 0.02006, 0.02927, 0.03152, 0.07451,
+	0.06653, 0.02047, 0.02026, 0.07001, 0.04073, 0.05752, 0.02989,
+	0.02743, 0.02457, 0.02068, 0.02845, 0.01842
+};
 
 
 //this function realises Step 1 of algorithm
@@ -140,8 +147,8 @@ string encVigenere(const string &text, const string &key){
 	//encoding
 	string result;
 	for(int i =0; i < t.size(); ++i){
-		if (ABC.find(t[i]) != string::npos)//we're encoding only letters from ABC
-			result += ABC[((t[i]-65) + (k[i]-65))%26];
+		if (ALPHABET.find(t[i]) != string::npos)//we're encoding only letters from ABC
+			result += ALPHABET[((t[i]-65) + (k[i]-65))%26];
 		else
 			result += t[i];
 	}
@@ -165,11 +172,11 @@ string decVigenere(const string &text, const string &key){
 	//decoding
 	string result;
 	for(int i =0; i < t.size(); ++i){
-		if (ABC.find(t[i]) != string::npos){//we're decoding only letters from ABC
+		if (ALPHABET.find(t[i]) != string::npos){//we're decoding only letters from ABC
 			int pos = (t[i]-65) - (k[i]-65);
 			if (pos < 0)
 				pos = 26 + pos;
-			result += ABC[pos];
+			result += ALPHABET[pos];
 		}else
 			result += t[i];
 	}
@@ -226,50 +233,6 @@ vector<double> testKasiski(const string &str, int n){
 	return result;
 }
 
-/*
-char getFrequencyLetter(const string &str){
-	int ch[26] = {0};
-	for(int i = 0; i < str.size(); ++i)
-		ch[str[i]-65]++;
-	int Max = 0;
-	for(int i = 0; i < 26; ++i)
-		if (ch[i] > ch[Max])
-			Max = i;
-	return char( Max );
-}
-
-
-vector<char> getFrequencyLetterVec(const string &str){
-	vector<char>vec(26);
-	for(int i = 0; i < str.size(); ++i)
-		vec[str[i]-65]++;
-	return vec;
-}
-
-string getKey(const string &str, int n){
-	int len = str.size() %n == 0? str.size()/n : 1 + str.size()/n;
-	string result;
-	for(int i = 0; i < n; ++i){
-		int j =i;
-		string str_current;
-		while(str_current.size() != len && j < str.size()){
-			str_current += str[j];
-			j += n;
-		}
-		//cout << "string is: " << str_current << endl;
-		auto v = getFrequencyLetterVec(str_current);
-		//for(int i = 0; i < 26; ++i)
-		//	cout << char(i+65) << ":" << (int)v[i] << " ";
-		//cout << endl;
-
-		char shift_i = ( (65+getFrequencyLetter(str_current))-'E' + 26)%26;
-		char letter = char( shift_i + 'A' );
-		result += letter;
-	}
-	return result;
-}
-*/
-
 //task 2 solution
 vector<double> getAbcFreq(const string &str){
 	vector<double>result(26);
@@ -280,36 +243,6 @@ vector<double> getAbcFreq(const string &str){
 		
 	return result;
 }
-
-
-const std::string ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-/*
-// English letter frequencies (A-Z)
-const std::vector<double> ENGLISH_FREQS = {
-    0.08167, 0.01492, 0.02782, 0.04253, 0.12702, 0.02228, 0.02015,
-    0.06094, 0.06966, 0.00153, 0.00772, 0.04025, 0.02406, 0.06749,
-    0.07507, 0.01929, 0.00095, 0.05987, 0.06327, 0.09056, 0.02758,
-    0.00978, 0.02360, 0.00150, 0.01974, 0.00074
-};
-*/
-
-
-const std::vector<double> ENGLISH_FREQS = {
-	0.0626407, 0.037871, 0.0386899, 0.0331627, 0.0839304, 0.0229273,0.0282497,
-	0.0431934,0.0462641,0.0227226, 0.0200614, 0.0292733,0.0315251,0.0745138,
-	0.0665302,0.0204708, 0.0202661, 0.0700102,0.0407369, 0.057523, 0.0298874,
-	0.0274309, 0.024565, 0.0206755,0.0284545,0.0184237
-};
-
-/*
-const std::vector<double> ENGLISH_FREQS = {
-	0.0646651, 0.0193995, 0.00969977, 0.0364896, 0.127483, 0.0240185, 0.0249423, 
-	0.0646651, 0.0683603, 0.000461894, 0.00877598, 0.0558891, 0.0314088, 0.0743649, 
-	0.0757506, 0.0184758, 0.00323326, 0.0595843, 0.0618938, 0.0974596, 0.0249423, 
-	0.0161663, 0.0133949, 0.000461894, 0.0180139, 0,0001 
-};
-*/
 
 
 double cosangle(const std::vector<double>& vec1, const std::vector<double>& vec2) {
@@ -326,47 +259,18 @@ double cosangle(const std::vector<double>& vec1, const std::vector<double>& vec2
 }
 
 std::string getKey(const std::string& ciphertext, int n) {
-    // Clean ciphertext: keep only uppercase letters
-    std::string cleaned_ciphertext;
-    for (char c : ciphertext) {
-        if (std::isupper(c)) {
-            cleaned_ciphertext += c;
-        }
-    }
     // Split into n slices
     std::vector<std::string> slices(n, "");
-    for (size_t i = 0; i < cleaned_ciphertext.size(); ++i) {
-        slices[i % n] += cleaned_ciphertext[i];
+    for (size_t i = 0; i < ciphertext.size(); ++i) {
+        slices[i % n] += ciphertext[i];
     }
-
     // Compute frequencies for each slice
     std::vector<std::vector<double>> frequencies(n, std::vector<double>(26, 0.0));
     std::string key(n, 'A');
-
     for (int i = 0; i < n; ++i) {
         // Calculate frequency counts
-        for (char c : slices[i]) {
-            frequencies[i][ALPHABET.find(c)] += 1.0;
-        }
-
-        // Normalize frequencies
         double group_len = slices[i].size();
-        if (group_len > 0) {
-            for (int j = 0; j < 26; ++j) {
-                frequencies[i][j] /= group_len;
-            }
-        }
-
-/*
-        // Debug: Print frequencies for each group
-        std::cout << "Group " << (i + 1) << " (length " << group_len << "): " << slices[i] << "\n";
-        std::cout << "  Letter frequencies:\n";
-        for (int j = 0; j < 26; ++j) {
-            if (frequencies[i][j] > 0) {
-                std::cout << "    " << ALPHABET[j] << ": " << frequencies[i][j] << "\n";
-            }
-        }
-*/
+        frequencies[i] = getAbcFreq(slices[i]);
         // Find best shift using cosine similarity
         double best_score = -1.0;
         int best_shift = 0;
@@ -384,6 +288,5 @@ std::string getKey(const std::string& ciphertext, int n) {
             key[i] = ALPHABET[best_shift];
         }
     }
-
     return key;
 }
