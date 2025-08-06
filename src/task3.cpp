@@ -4,7 +4,7 @@
  * for text encoded with Vigenere cipher.
  * 
  * There is need a string to analyse as parameter to start
- * or it can use without any parametrs with example text by default
+ * or it may to without any parametrs with example text by default
  * Example of using:
  * $./task3 cmlmtywcrmvuxugmnhkgmnabvqfmnjvwnvtxoeqwudnymltxojdivucqviymsrgbhuggmltxopdaaidmqghynbdviddfdmvubwczofvgjmacoknzybylfnohqmsbedgyhbidqrnjehokdububccjyjrmrmwxynzcsudmkqsjolswtxootqejgfhapubqnntxoczztxdfdziloprkahbwrwnwcdqwmtsqsinjvymlsqxbsperspcatuvjxwujbsspsyxrgmihmyktsypwnclycrdvcboyqtyoyskthukpspefkqsbhuzpdaeddymltxodtbuhogmbehduhvetvgjmsjbgm
  * 

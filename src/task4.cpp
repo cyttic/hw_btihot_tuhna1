@@ -7,7 +7,7 @@
  * uses function getKeyLength() as on task3.
  * 
  * There is need a string to analyse as parameter to start
- * or it can use without any parametrs with example text by default
+ * or it may to without any parametrs with example text by default
  * Example of using:
  * $./task4 cmlmtywcrmvuxugmnhkgmnabvqfmnjvwnvtxoeqwudnymltxojdivucqviymsrgbhuggmltxopdaaidmqghynbdviddfdmvubwczofvgjmacoknzybylfnohqmsbedgyhbidqrnjehokdububccjyjrmrmwxynzcsudmkqsjolswtxootqejgfhapubqnntxoczztxdfdziloprkahbwrwnwcdqwmtsqsinjvymlsqxbsperspcatuvjxwujbsspsyxrgmihmyktsypwnclycrdvcboyqtyoyskthukpspefkqsbhuzpdaeddymltxodtbuhogmbehduhvetvgjmsjbgm
  * 
@@ -32,7 +32,7 @@ int main(int argc, char *argv[]){
 		vec = argv[1];
 	else if (argc > 2){
 		cerr << "There is a wrong number parameters to this program\n"
-				"usage: ./task3 YOURCHIPREDTEXT or just ./task3 to use encoded text by default" << endl;
+				"usage: ./task4 YOURCHIPREDTEXT or just ./task3 to use encoded text by default" << endl;
 		return -7;
 	}
 	transform(vec.begin(), vec.end(), vec.begin(), [](unsigned char c) { return std::toupper(c); });
