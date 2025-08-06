@@ -6,6 +6,10 @@
  * "CRYPTO GRAPHY" by key "KEY" by default.
  * Call with 2 string params will decode and encode user's text with
  * user key.
+ * 
+ * * Example of using:
+ * $./task1 encodeitplease example_key
+ * 
  * IMPORTANT: USER TEXT AND USER KEY MUST BE WITHOUT SPACES!!
  * 
 */

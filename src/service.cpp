@@ -248,6 +248,7 @@ string getKey(const string &str, int n){
 }
 */
 
+//task 2 solution
 vector<double> getAbcFreq(const string &str){
 	vector<double>result(26);
 	for(int i = 0; i < str.size(); ++i)
