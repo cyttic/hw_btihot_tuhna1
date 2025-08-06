@@ -15,46 +15,19 @@ using namespace std;
 
 string ABC = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-/*
 //this function realises Step 1 of algorithm
-map<string, vector<int>> getCommonSubVec(const string &arr){
-	map<string, vector<int>> result;
-	for(int i = 0; i < arr.size()-4; ++i){
-		string tmp(arr.begin()+i, arr.begin()+i+3);
-		if ( result.count(tmp) != 0 ||//check if result contains alredy this substring
-				std::find_if(tmp.begin(), tmp.end(),//and also all of symbols of substring is letters
-                   [](char c) { return !std::isalpha(c); }) != tmp.end())
-				continue;
-		for(int j = i+1; j < arr.size()-2; ++j){
-			if (arr[i] == arr[j] && (arr[i+1] == arr[j+1]) && (arr[i+2] == arr[j+2]) ){
-				if( result.count(tmp) == 0)//we need to add substring to result if it was found in first time
-					result[ tmp ].push_back(i+1);
-				result[ tmp ].push_back(j+1);
-			}
-		}
-	}
-	return result;
-}
-*/
-
-
 vector<pair<string, vector<int>>> getCommonSubVec(const string& text, int minLen, int maxLen) {
     unordered_map<string, vector<int>> result;
-
     int n = text.size();
-
     for (int len = minLen; len <= maxLen; ++len) {
         for (int i = 0; i <= n - len; ++i) {
             string sub = text.substr(i, len);
-
             // Skip non-alpha substrings
             if (!all_of(sub.begin(), sub.end(), ::isalpha))
                 continue;
-
             result[sub].push_back(i);
         }
     }
-
     // Remove substrings that occur only once
     for (auto it = result.begin(); it != result.end(); ) {
         if (it->second.size() < 2)
@@ -65,22 +38,30 @@ vector<pair<string, vector<int>>> getCommonSubVec(const string& text, int minLen
     vector<pair<string, vector<int>>> vec;
     for(auto &i : result)
 		vec.push_back(make_pair(i.first,i.second));
-	
 	sort(vec.begin(), vec.end(), [](const auto& a, const auto& b) {
         return a.second.size() > b.second.size(); // descending
     });
-
     return vec;
 }
 
 vector<int> mostLongVec(const map<string, vector<int>>&m){
 	vector<int>result;
 	for (const auto& pair : m) {
-		cout<< "LEN STR " << pair.first.size() << " VECTOR SIZE: " <<pair.second.size() << endl;
-        if(pair.second.size() > result.size())
-			result = pair.second;
+        if(pair.second.size() > 1)
+			//result = pair.second;
+			return pair.second;
     }
     return result;
+}
+
+set<int> trustedDistances(const vector<pair<string, vector<int>>> &vec){
+	set<int>result;
+	for(auto &item : vec){
+		auto vv = getDivFromVec( getDistances(item.second) );
+		if (vv.size() > result.size())
+			result = vv;
+	}
+	return result;
 }
 
 //step 2
@@ -164,15 +145,6 @@ set<int> getDivFromVec(const vector<int> &vec){
 	return result;
 }
 
-set<int> trustedDistances(const vector<pair<string, vector<int>>> &vec){
-	set<int>result;
-	for(auto &item : vec){
-		auto vv = getDivFromVec( getDistances(item.second) );
-		if (vv.size() > result.size())
-			result = vv;
-	}
-	return result;
-}
 
 
 vector<double> testKasiski(const string &str, int n){
