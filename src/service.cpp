@@ -8,17 +8,17 @@
 #include <set>
 #include <iterator>
 #include <limits>
+#include <unordered_map>
 #include "service.h"
 
 using namespace std;
 
 string ABC = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
+/*
 //this function realises Step 1 of algorithm
 map<string, vector<int>> getCommonSubVec(const string &arr){
 	map<string, vector<int>> result;
-	//string arr = source;//set source string to uppercase
-	//transform(arr.begin(), arr.end(), arr.begin(), [](unsigned char c) { return std::toupper(c); });
 	for(int i = 0; i < arr.size()-4; ++i){
 		string tmp(arr.begin()+i, arr.begin()+i+3);
 		if ( result.count(tmp) != 0 ||//check if result contains alredy this substring
@@ -35,10 +35,48 @@ map<string, vector<int>> getCommonSubVec(const string &arr){
 	}
 	return result;
 }
+*/
+
+
+vector<pair<string, vector<int>>> getCommonSubVec(const string& text, int minLen, int maxLen) {
+    unordered_map<string, vector<int>> result;
+
+    int n = text.size();
+
+    for (int len = minLen; len <= maxLen; ++len) {
+        for (int i = 0; i <= n - len; ++i) {
+            string sub = text.substr(i, len);
+
+            // Skip non-alpha substrings
+            if (!all_of(sub.begin(), sub.end(), ::isalpha))
+                continue;
+
+            result[sub].push_back(i);
+        }
+    }
+
+    // Remove substrings that occur only once
+    for (auto it = result.begin(); it != result.end(); ) {
+        if (it->second.size() < 2)
+            it = result.erase(it);
+        else
+            ++it;
+    }
+    vector<pair<string, vector<int>>> vec;
+    for(auto &i : result)
+		vec.push_back(make_pair(i.first,i.second));
+	
+	sort(vec.begin(), vec.end(), [](const auto& a, const auto& b) {
+        return a.second.size() > b.second.size(); // descending
+    });
+
+    return vec;
+}
 
 vector<int> mostLongVec(const map<string, vector<int>>&m){
 	vector<int>result;
 	for (const auto& pair : m) {
+		cout<< "LEN STR " << pair.first.size() << " VECTOR SIZE: " <<pair.second.size() << endl;
         if(pair.second.size() > result.size())
 			result = pair.second;
     }
@@ -126,6 +164,16 @@ set<int> getDivFromVec(const vector<int> &vec){
 	return result;
 }
 
+set<int> trustedDistances(const vector<pair<string, vector<int>>> &vec){
+	set<int>result;
+	for(auto &item : vec){
+		auto vv = getDivFromVec( getDistances(item.second) );
+		if (vv.size() > result.size())
+			result = vv;
+	}
+	return result;
+}
+
 
 vector<double> testKasiski(const string &str, int n){
 	//we need to divide a text on n pieces and find IC.
@@ -204,14 +252,6 @@ vector<double> getAbcFreq(const string &str){
 	vector<double>result(26);
 	for(int i = 0; i < str.size(); ++i)
 		result[str[i]-65]++;
-	/*
-	for(int i = 0; i < str.size(); ++i)
-		try{
-			result.at(str[i]-65);
-		}catch(const std::runtime_error& e){
-			cout << "PROBLEM AT " << i << " " << str[i] << endl;
-		}
-		*/
 	for(int i = 0; i < result.size(); ++i)
 		result[i] = result[i]/str.size();
 		
@@ -231,12 +271,22 @@ const std::vector<double> ENGLISH_FREQS = {
 };
 */
 
+
 const std::vector<double> ENGLISH_FREQS = {
 	0.0626407, 0.037871, 0.0386899, 0.0331627, 0.0839304, 0.0229273,0.0282497,
 	0.0431934,0.0462641,0.0227226, 0.0200614, 0.0292733,0.0315251,0.0745138,
 	0.0665302,0.0204708, 0.0202661, 0.0700102,0.0407369, 0.057523, 0.0298874,
 	0.0274309, 0.024565, 0.0206755,0.0284545,0.0184237
 };
+
+/*
+const std::vector<double> ENGLISH_FREQS = {
+	0.0646651, 0.0193995, 0.00969977, 0.0364896, 0.127483, 0.0240185, 0.0249423, 
+	0.0646651, 0.0683603, 0.000461894, 0.00877598, 0.0558891, 0.0314088, 0.0743649, 
+	0.0757506, 0.0184758, 0.00323326, 0.0595843, 0.0618938, 0.0974596, 0.0249423, 
+	0.0161663, 0.0133949, 0.000461894, 0.0180139, 0,0001 
+};
+*/
 
 
 double cosangle(const std::vector<double>& vec1, const std::vector<double>& vec2) {
@@ -260,7 +310,6 @@ std::string getKey(const std::string& ciphertext, int n) {
             cleaned_ciphertext += c;
         }
     }
-
     // Split into n slices
     std::vector<std::string> slices(n, "");
     for (size_t i = 0; i < cleaned_ciphertext.size(); ++i) {
@@ -285,6 +334,7 @@ std::string getKey(const std::string& ciphertext, int n) {
             }
         }
 
+/*
         // Debug: Print frequencies for each group
         std::cout << "Group " << (i + 1) << " (length " << group_len << "): " << slices[i] << "\n";
         std::cout << "  Letter frequencies:\n";
@@ -293,7 +343,7 @@ std::string getKey(const std::string& ciphertext, int n) {
                 std::cout << "    " << ALPHABET[j] << ": " << frequencies[i][j] << "\n";
             }
         }
-
+*/
         // Find best shift using cosine similarity
         double best_score = -1.0;
         int best_shift = 0;
@@ -309,9 +359,6 @@ std::string getKey(const std::string& ciphertext, int n) {
                 }
             }
             key[i] = ALPHABET[best_shift];
-            std::cout << "  Best shift: " << best_shift << ", Cosine similarity: " << best_score << ", Key letter: " << key[i] << "\n";
-        } else {
-            std::cout << "  Empty group, defaulting to key letter 'A'\n";
         }
     }
 
