@@ -43,3 +43,6 @@
 # files without extension
 !/**/
 !*.*
+
+# build directory
+#build/*
