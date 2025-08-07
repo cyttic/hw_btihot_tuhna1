@@ -26,9 +26,8 @@ const std::vector<double> ENGLISH_FREQS = {
 
 //this function realises Step 1 of algorithm
 vector<pair<string, vector<int>>> getCommonSubVec(const string &arr){
+		//The common idea: two inner loop to find matches at least 3 same letters
         map<string, vector<int>> result;
-        //string arr = source;//set source string to uppercase
-        //transform(arr.begin(), arr.end(), arr.begin(), [](unsigned char c) { return std::toupper(c); });
         for(int i = 0; i < arr.size()-4; ++i){
                 string tmp(arr.begin()+i, arr.begin()+i+3);
                 if ( result.count(tmp) != 0 ||//check if result contains alredy this substring
@@ -43,6 +42,7 @@ vector<pair<string, vector<int>>> getCommonSubVec(const string &arr){
                         }
                 }
         }
+        //using std::vector to sort result and return
 		vector<pair<string, vector<int>>> vec;
 		for(auto &i : result)
 			vec.push_back(make_pair(i.first,i.second));
@@ -50,47 +50,6 @@ vector<pair<string, vector<int>>> getCommonSubVec(const string &arr){
 			return a.second.size() > b.second.size(); // descending
 		});
 		return vec;
-}
-
-/*
-//this function realises Step 1 of algorithm
-vector<pair<string, vector<int>>> getCommonSubVec(const string& text, int minLen, int maxLen) {
-    unordered_map<string, vector<int>> result;
-    int n = text.size();
-    for (int len = minLen; len <= maxLen; ++len) {
-        for (int i = 0; i <= n - len; ++i) {
-            string sub = text.substr(i, len);
-            // Skip non-alpha substrings
-            if (!all_of(sub.begin(), sub.end(), ::isalpha))
-                continue;
-            result[sub].push_back(i);
-        }
-    }
-    // Remove substrings that occur only once
-    for (auto it = result.begin(); it != result.end(); ) {
-        if (it->second.size() < 2)
-            it = result.erase(it);
-        else
-            ++it;
-    }
-    vector<pair<string, vector<int>>> vec;
-    for(auto &i : result)
-		vec.push_back(make_pair(i.first,i.second));
-	sort(vec.begin(), vec.end(), [](const auto& a, const auto& b) {
-        return a.second.size() > b.second.size(); // descending
-    });
-    return vec;
-}
-*/
-
-vector<int> mostLongVec(const map<string, vector<int>>&m){
-	vector<int>result;
-	for (const auto& pair : m) {
-        if(pair.second.size() > 1)
-			//result = pair.second;
-			return pair.second;
-    }
-    return result;
 }
 
 set<int> trustedDistances(const vector<pair<string, vector<int>>> &vec){
@@ -103,6 +62,8 @@ set<int> trustedDistances(const vector<pair<string, vector<int>>> &vec){
 	return result;
 }
 
+
+//founding key length by instruction from task 3
 int getKeyLength(const string &vec,const set<int>&s){
 	vector<int>vec_len;
 	pair<double, int>lenBlock;
@@ -129,9 +90,9 @@ vector<int> getDistances(const vector<int> &vec){
 	return result;
 }
 
-//task1
+//task1 - encoder Vigenere
 string encVigenere(const string &text, const string &key){
-	if (text.size() < key.size() || key.size() < 1){
+	if (key.size() < 1){
 		cerr << "Wrong length of key size" << endl;
 		return "";
 	}
@@ -155,6 +116,7 @@ string encVigenere(const string &text, const string &key){
 	return result;
 }
 
+//task1 - decoder Vigenere
 string decVigenere(const string &text, const string &key){
 	if (text.size() < key.size() || key.size() < 1){
 		cerr << "Wrong length of key size" << endl;
@@ -183,6 +145,7 @@ string decVigenere(const string &text, const string &key){
 	return result;
 }
 
+//Function to find all of divisiors of number
 set<int> getDivisors(int val){
 	set<int>result;
 	for(int i = 2; i <= val; ++i)
@@ -191,6 +154,7 @@ set<int> getDivisors(int val){
 	return result;
 }
 
+//Function to find all of divisiors of vector of integers
 set<int> getDivFromVec(const vector<int> &vec){
 	set<int>result;
 	set<int>first = getDivisors(vec[0]);
@@ -202,13 +166,10 @@ set<int> getDivFromVec(const vector<int> &vec){
 	return result;
 }
 
-
-
+//function to find IC according the instruction from Task
 vector<double> testKasiski(const string &str, int n){
 	//we need to divide a text on n pieces and find IC.
 	int len = str.size() %n == 0? str.size()/n : 1 + str.size()/n;
-	//cout << "LEN: " << len << endl;
-	//int len = str.size()/n ;
 	vector<double>result;
 	for(int i = 0; i < n; ++i){
 		int j =i;
@@ -217,8 +178,6 @@ vector<double> testKasiski(const string &str, int n){
 			str_current += str[j];
 			j += n;
 		}
-		//cout << "current word: " << str_current.size() << " " << str_current << endl;
-		//count the letter frequencies
 			int letters[26] = {0};
 			for(int j = 0 ; j < str_current.size(); ++j)
 				letters[str_current[j]-65]++;	
@@ -244,7 +203,7 @@ vector<double> getAbcFreq(const string &str){
 	return result;
 }
 
-
+//Function to find how much closer values of two std::vectors
 double cosangle(const std::vector<double>& vec1, const std::vector<double>& vec2) {
     double dot_product = 0.0, norm1 = 0.0, norm2 = 0.0;
     for (size_t i = 0; i < vec1.size(); ++i) {
@@ -258,6 +217,7 @@ double cosangle(const std::vector<double>& vec1, const std::vector<double>& vec2
     return dot_product / (norm1 * norm2);
 }
 
+//solution of task4
 std::string getKey(const std::string& ciphertext, int n) {
     // Split into n slices
     std::vector<std::string> slices(n, "");
